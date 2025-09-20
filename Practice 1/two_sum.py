@@ -16,13 +16,13 @@
 """
 
 
-def two_sum(arr, target):
+def two_sum(nums, target):
     is_integer = lambda x: isinstance(x, int)
 
     seen_elements = dict()
     min_indices = None
 
-    for idx, num in enumerate(arr):
+    for idx, num in enumerate(nums):
         if not is_integer(num):
             continue
 
