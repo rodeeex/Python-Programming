@@ -2,7 +2,7 @@ import unittest
 from two_sum import two_sum
 
 
-class MyTestCase(unittest.TestCase):
+class TestTwoSum(unittest.TestCase):
     def test_empty_list(self):
         """
         В пустом списке пара индексов не найдётся
