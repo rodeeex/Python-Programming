@@ -4,6 +4,8 @@
 Дерево хранится в виде объектов, ссылающихся на дочерние. Параметры по умолчанию вывел на самый верхний уровень,
 т.е. в BinTree. При этом, и создание бинарного дерева, и его вывод в виде словаря можно выполнить
 рекурсивным или нерекурсивным путём (через очередь). Также возможен вывод в виде списка.
+
+TODO: написать документацию к функциям
 """
 
 from typing import Callable, Literal, Optional
@@ -11,7 +13,7 @@ from collections import deque
 
 
 class TreeNode:
-    def __init__(self, value: int, left=None, right=None):
+    def __init__(self, value: float, left=None, right=None):
         self.value = value
         self.left = left
         self.right = right
@@ -20,7 +22,7 @@ class TreeNode:
 class BinTree:
     type OutputStruct = Literal['dict', 'dict_recursive', 'list']
 
-    def __init__(self, root_val: int = 10, height: int = 5,
+    def __init__(self, root_val: float = 10, height: int = 5,
                  count_left_leaf_function: Callable = lambda value: value * 3 + 1,
                  count_right_leaf_function: Callable = lambda value: 3 * value - 1,
                  is_recursive: bool = True):
@@ -93,7 +95,7 @@ class TreeGenerator:
         self.count_left_leaf = count_left_leaf_function
         self.count_right_leaf = count_right_leaf_function
 
-    def generate(self, root_val: int, height: int, is_recursive: bool) -> TreeNode:
+    def generate(self, root_val: float, height: int, is_recursive: bool) -> TreeNode:
         root = TreeNode(root_val)
         if is_recursive:
             self.generate_recursive(root, height)
