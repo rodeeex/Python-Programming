@@ -23,9 +23,9 @@ class BinTree:
     type OutputStruct = Literal['dict', 'dict_recursive', 'list']
 
     def __init__(self, root_val: float = 10, height: int = 5,
-                 count_left_leaf_function: Callable = lambda value: value * 3 + 1,
-                 count_right_leaf_function: Callable = lambda value: 3 * value - 1,
-                 is_recursive: bool = True):
+                 count_left_leaf_function: Callable[[float], float] = lambda value: value * 3 + 1,
+                 count_right_leaf_function: Callable[[float], float] = lambda value: 3 * value - 1,
+                 is_recursive: bool = False):
         self.height = height
 
         generator = TreeGenerator(count_left_leaf_function, count_right_leaf_function)
@@ -59,8 +59,8 @@ class BinTree:
             return None
         return {
             'value': node.value,
-            'left': self.to_dict(node.left),
-            'right': self.to_dict(node.right)
+            'left': self.to_dict_recursive(node.left),
+            'right': self.to_dict_recursive(node.right)
         }
 
     def to_list(self, node: TreeNode = None) -> list:
@@ -92,8 +92,19 @@ class BinTree:
 
 class TreeGenerator:
     def __init__(self, count_left_leaf_function: Callable, count_right_leaf_function: Callable):
-        self.count_left_leaf = count_left_leaf_function
-        self.count_right_leaf = count_right_leaf_function
+        self.count_left_leaf = self.validate_function(count_left_leaf_function)
+        self.count_right_leaf = self.validate_function(count_right_leaf_function)
+
+    @staticmethod
+    def validate_function(func: Callable[[float], float]) -> Callable[[float], float]:
+        try:
+            result = func(2.77)
+        except Exception as e:
+            raise TypeError(f'Функции для вычисления листьев должны принимать один аргумент float')
+
+        if not isinstance(result, (int, float)):
+            raise TypeError(f'Функции для вычисления листьев должны возвращать float, возвращено {type(result).__name__}')
+        return func
 
     def generate(self, root_val: float, height: int, is_recursive: bool) -> TreeNode:
         root = TreeNode(root_val)
