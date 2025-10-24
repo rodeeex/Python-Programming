@@ -46,8 +46,8 @@ class BinTree:
         if self.root is None:
             return dict()
 
-        tree = {}  # Словарь для представления дерева
-        tree_queue = deque([(self.root, tree)])  # Очередь узлов и соответствующих словарей
+        tree = {}
+        tree_queue = deque([(self.root, tree)])
 
         while tree_queue:
             current_node, current_dict = tree_queue.popleft()
