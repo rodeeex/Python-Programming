@@ -1,9 +1,10 @@
 import sys
 import logging
 import functools
+from typing import Callable
 
 
-def logger(func=None, *, handle=sys.stdout):
+def logger(func: Callable =None, *, handle=sys.stdout) -> Callable:
     """Параметризуемый декоратор логирования
 
     :param func: функция для декорирования
