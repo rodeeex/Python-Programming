@@ -1,5 +1,5 @@
 import logging
-from get_currencies import get_currencies
+from functions.get_currencies import get_currencies
 from logger_dec import logger
 
 file_logger = logging.getLogger('currency_file')

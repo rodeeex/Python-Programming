@@ -1,6 +1,6 @@
 import logging
 from logger_dec import logger
-from solve_quadratic import solve_quadratic
+from functions.solve_quadratic import solve_quadratic
 
 file_logger = logging.getLogger('solutions_file')
 file_logger.setLevel(logging.DEBUG)

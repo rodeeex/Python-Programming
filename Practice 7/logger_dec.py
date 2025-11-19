@@ -2,13 +2,7 @@ import sys
 import logging
 import functools
 from typing import Callable, Any
-
-
-class CriticalError(Exception):
-    pass
-
-class WarningMessage(Exception):
-    pass
+from custom_exceptions import *
 
 
 def logger(func: Callable = None, *, handle=sys.stdout) -> Callable:
