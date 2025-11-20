@@ -1,0 +1,2 @@
+INFO: Начало вызова функции get_currencies_file с аргументами: args=(['USD', 'EUR', 'XYZ'],), kwargs={}
+INFO: Функция get_currencies_file завершилась успешно. Результат: {'USD': 79.0246, 'EUR': 90.5625, 'XYZ': "Код валюты 'XYZ' не найден"}

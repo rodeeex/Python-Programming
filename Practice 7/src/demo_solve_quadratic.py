@@ -1,10 +1,10 @@
 import logging
-from logger_dec import logger
-from functions.solve_quadratic import solve_quadratic
+from .logger_dec import logger
+from .solve_quadratic import solve_quadratic
 
 file_logger = logging.getLogger('solutions_file')
 file_logger.setLevel(logging.DEBUG)
-file_handler = logging.FileHandler('logs/solutions.log', mode='w', encoding='utf-8')
+file_handler = logging.FileHandler('../logs/solutions.log', mode='w', encoding='utf-8')
 file_formatter = logging.Formatter('%(levelname)s: %(message)s')
 file_handler.setFormatter(file_formatter)
 file_logger.addHandler(file_handler)

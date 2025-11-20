@@ -1,0 +1,8 @@
+INFO: Начало вызова функции solve_quadratic_file с аргументами: args=(1, -3, 2), kwargs={}
+INFO: Функция solve_quadratic_file завершилась успешно. Результат: (2.0, 1.0)
+INFO: Начало вызова функции solve_quadratic_file с аргументами: args=(1, 1, 1), kwargs={}
+WARNING: В функции solve_quadratic_file возникло предупреждение: Дискриминант < 0: уравнение 1x^2 + 1x + 1 не имеет действительных корней (WarningMessage)
+INFO: Начало вызова функции solve_quadratic_file с аргументами: args=('abc', 2, 1), kwargs={}
+ERROR: В функции solve_quadratic_file возникло исключение: Коэффициент a должен быть числом, получено: abc (TypeError)
+INFO: Начало вызова функции solve_quadratic_file с аргументами: args=(0, 0, 5), kwargs={}
+CRITICAL: В функции solve_quadratic_file возникло критическое исключение: Невозможно решить уравнение: a = 0 и b=0 (CriticalError)

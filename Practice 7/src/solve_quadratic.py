@@ -1,6 +1,6 @@
 import math
 from typing import Tuple, Optional
-from ..logger_dec import CriticalError, WarningMessage
+from .custom_exceptions import CriticalError, WarningMessage
 
 
 def solve_quadratic(a: float, b: float, c: float) -> Optional[Tuple[float, ...]]:

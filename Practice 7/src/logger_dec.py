@@ -2,12 +2,12 @@ import sys
 import logging
 import functools
 from typing import Callable, Any
-from custom_exceptions import *
+from .custom_exceptions import *
 
 
 def logger(func: Callable = None, *, handle=sys.stdout) -> Callable:
     """
-    Параметризуемый декоратор логирования.
+    Параметризуемый декоратор логирования
 
     :param func: функция для декорирования
     :param handle: куда логировать
