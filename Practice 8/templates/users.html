@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пользователи</title></head>
+<body>
+<h1>Список пользователей</h1>
+<nav><a href="/">← Назад</a></nav>
+<ul>
+    {% for user in users %}
+    <li><a href="/user?id={{ user.id }}">{{ user.name }}</a></li>
+    {% else %}
+    <li>Нет пользователей</li>
+    {% endfor %}
+</ul>
+<footer>Приложение отображает курсы валют ЦБ РФ и позволяет пользователям подписываться на них</footer>
+</body>
+</html>

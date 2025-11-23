@@ -18,7 +18,7 @@ TEMPLATES = {
 }
 
 author = Author(name="Антон Пушкарев", group="P4150")
-app = App(name="CurrenciesListApp", version="1.0", author=author)
+app = App(name="CurrenciesApp", version="1.0", author=author)
 
 users = [
     User(1, "rodex"),
