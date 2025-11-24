@@ -3,23 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Пользователь: {{ user.name }}</title>
+    <script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
 </head>
 <body>
 <h1>Пользователь: {{user.name}}</h1>
 <nav><a href="/users">← Все пользователи</a></nav>
+
 <h2>Подписки</h2>
 {% if subscriptions %}
 <ul>
     {% for curr in subscriptions %}
-    <li>{{ curr.char_code }} — {{ curr.name }} ({{ "%.4f"|format(curr.value) }} RUB за {{ curr.nominal }})</li>
+    <li>{{ curr.char_code }} — {{ curr.name }} ({{ "%.4f"|format(curr.value) }} RUB)</li>
     {% endfor %}
 </ul>
-<h3>Динамика курсов валют за последние за 3 месяца</h3>
-<!-- TODO: сделать график на джаваскрипте-->
-<div id="chart-container" style="width: 800px; height: 400px;"></div>
+
+<h2>График курсов валют пользователя</h2>
+
+<div id="chart-data" data-historical='{{ historical_data | tojson | safe }}' style="display:none;"></div>
+<div id="currencyPlot" style="width: 95%; max-width: 1000px; margin-left: 10px;"></div>
+
+<script type="text/javascript" src="/static/draw_plot.js"></script>
+
 {% else %}
 <p>Пользователь не подписан на курсы валют</p>
 {% endif %}
-<footer>Приложение отображает курсы валют ЦБ РФ и позволяет пользователям подписываться на них</footer>
+
 </body>
 </html>

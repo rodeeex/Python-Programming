@@ -14,7 +14,7 @@ class Currency:
     @id.setter
     def id(self, value: int):
         if not isinstance(value, int) or value <= 0:
-            raise ValueError("ID валюты должен быть положительным целым числом")
+            raise ValueError('ID валюты должен быть положительным целым числом')
         self._id = value
 
     @property
@@ -24,9 +24,9 @@ class Currency:
     @num_code.setter
     def num_code(self, value: str):
         if not isinstance(value, str) or len(value) != 3:
-            raise ValueError("Цифровой код должен быть строкой из 3 цифр")
+            raise ValueError('Цифровой код должен быть строкой из 3 цифр')
         if not value.isdigit():
-            raise ValueError("Цифровой код должен содержать только цифры")
+            raise ValueError('Цифровой код должен содержать только цифры')
         self._num_code = value
 
     @property
@@ -36,9 +36,9 @@ class Currency:
     @char_code.setter
     def char_code(self, value: str):
         if not isinstance(value, str) or len(value) != 3:
-            raise ValueError("Символьный код должен быть строкой из 3 букв")
+            raise ValueError('Символьный код должен быть строкой из 3 букв')
         if not value.isalpha():
-            raise ValueError("Символьный код должен содержать только буквы")
+            raise ValueError('Символьный код должен содержать только буквы')
         self._char_code = value.upper()
 
     @property
@@ -48,7 +48,7 @@ class Currency:
     @name.setter
     def name(self, value: str):
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Название валюты должно быть непустой строкой")
+            raise ValueError('Название валюты должно быть непустой строкой')
         self._name = value.strip()
 
     @property
@@ -58,7 +58,7 @@ class Currency:
     @value.setter
     def value(self, value: float):
         if not isinstance(value, (int, float)) or value <= 0:
-            raise ValueError("Курс валюты должен быть положительным числом")
+            raise ValueError('Курс валюты должен быть положительным числом')
         self._value = float(value)
 
     @property
@@ -68,5 +68,5 @@ class Currency:
     @nominal.setter
     def nominal(self, value: int):
         if not isinstance(value, int) or value <= 0:
-            raise ValueError("Номинал должен быть положительным целым числом")
+            raise ValueError('Номинал должен быть положительным целым числом')
         self._nominal = value

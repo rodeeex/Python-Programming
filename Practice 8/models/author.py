@@ -10,7 +10,7 @@ class Author:
     @name.setter
     def name(self, value: str):
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Имя автора должно быть непустой строкой")
+            raise ValueError('Имя автора должно быть непустой строкой')
         self._name = value.strip()
 
     @property
@@ -20,5 +20,5 @@ class Author:
     @group.setter
     def group(self, value: str):
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Группа должна быть непустой строкой")
+            raise ValueError('Группа должна быть непустой строкой')
         self._group = value.strip()

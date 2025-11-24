@@ -11,7 +11,7 @@ class UserCurrency:
     @id.setter
     def id(self, value: int):
         if not isinstance(value, int) or value <= 0:
-            raise ValueError("ID связи должен быть положительным целым числом")
+            raise ValueError('ID связи должен быть положительным целым числом')
         self._id = value
 
     @property
@@ -21,7 +21,7 @@ class UserCurrency:
     @user_id.setter
     def user_id(self, value: int):
         if not isinstance(value, int) or value <= 0:
-            raise ValueError("user_id должен быть положительным целым числом")
+            raise ValueError('user_id должен быть положительным целым числом')
         self._user_id = value
 
     @property
@@ -31,5 +31,5 @@ class UserCurrency:
     @currency_id.setter
     def currency_id(self, value: int):
         if not isinstance(value, int) or value <= 0:
-            raise ValueError("currency_id должен быть положительным целым числом")
+            raise ValueError('currency_id должен быть положительным целым числом')
         self._currency_id = value

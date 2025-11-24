@@ -1,35 +1,39 @@
+import html
+import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from jinja2 import Environment, PackageLoader, select_autoescape
 from models import Author, App, User, Currency
-from utils.currencies_api import get_currency_data
+from utils.currencies_api import get_currency_data, get_historical_rates
 
 env = Environment(
-    loader=PackageLoader("myapp"),
+    loader=PackageLoader('myapp'),
     autoescape=select_autoescape()
 )
 
+env.filters['tojson'] = lambda obj: html.escape(json.dumps(obj, ensure_ascii=False))
+
 TEMPLATES = {
-    "index": env.get_template("index.html"),
-    "users": env.get_template("users.html"),
-    "currencies": env.get_template("currencies.html"),
-    "user": env.get_template("user.html"),
-    "author": env.get_template("author.html"),
+    'index': env.get_template('index.html'),
+    'users': env.get_template('users.html'),
+    'currencies': env.get_template('currencies.html'),
+    'user': env.get_template('user.html'),
+    'author': env.get_template('author.html'),
 }
 
-author = Author(name="Антон Пушкарев", group="P4150")
-app = App(name="CurrenciesApp", version="1.0", author=author)
+author = Author(name='Антон Пушкарев', group='P4150')
+app = App(name='CurrenciesApp', version='1.0', author=author)
 
 users = [
-    User(1, "rodex"),
-    User(2, "techno"),
-    User(3, "h1k0"),
+    User(1, 'rodex'),
+    User(2, 'techno'),
+    User(3, 'h1k0'),
 ]
 
 subscriptions = {
-    1: ["USD", "EUR"],
-    2: ["CNY", "BYN"],
-    3: ["TRY", "KZT"],
+    1: ['USD', 'EUR'],
+    2: ['CNY', 'BYN'],
+    3: ['TRY', 'KZT'],
 }
 
 
@@ -48,11 +52,11 @@ def fetch_currencies(char_codes: list[str]) -> list[Currency]:
         try:
             curr = Currency(
                 id_=abs(hash(code)) % 100000,
-                num_code=data["NumCode"],
-                char_code=data["CharCode"],
-                name=data["Name"],
-                value=data["Value"],
-                nominal=data["Nominal"],
+                num_code=data['NumCode'],
+                char_code=data['CharCode'],
+                name=data['Name'],
+                value=data['Value'],
+                nominal=data['Nominal'],
             )
             result.append(curr)
         except (ValueError, TypeError):
@@ -67,19 +71,19 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             path = parsed.path
             query = parse_qs(parsed.query)
 
-            if path == "/":
-                html = TEMPLATES["index"].render(myapp=app, author=author)
+            if path == '/':
+                html = TEMPLATES['index'].render(myapp=app, author=author)
                 self._send_html(html)
 
-            elif path == "/users":
+            elif path == '/users':
                 html = TEMPLATES["users"].render(users=users)
                 self._send_html(html)
 
-            elif path == "/currencies":
-                default_codes = ["USD", "EUR", "CNY", "BYN", "TRY", "KZT"]
-                codes_param = query.get("codes", [""])[0].strip()
+            elif path == '/currencies':
+                default_codes = ['USD', 'EUR', 'CNY', 'BYN', 'TRY', 'KZT']
+                codes_param = query.get('codes', [''])[0].strip()
                 if codes_param:
-                    codes = [c.strip().upper() for c in codes_param.split(",") if c.strip()]
+                    codes = [c.strip().upper() for c in codes_param.split(',') if c.strip()]
                 else:
                     codes = default_codes
 
@@ -88,68 +92,131 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 except Exception as e:
                     self.send_response(500)
                     self.end_headers()
-                    self.wfile.write(f"Ошибка получения курсов: {e}".encode("utf-8"))
+                    self.wfile.write(f'Ошибка получения курсов: {e}'.encode('utf-8'))
                     return
 
-                html = TEMPLATES["currencies"].render(currencies=currencies)
+                html = TEMPLATES['currencies'].render(currencies=currencies)
                 self._send_html(html)
 
-            elif path == "/author":
-                html = TEMPLATES["author"].render(author=author, app=app)
+            elif path == '/author':
+                html = TEMPLATES['author'].render(author=author, app=app)
                 self._send_html(html)
 
-            elif path == "/user":
-                user_id_str = query.get("id", [""])[0]
+
+            elif path == '/user':
+                user_id_str = query.get('id', [''])[0]
+
                 if not user_id_str.isdigit():
                     self.send_response(400)
                     self.end_headers()
-                    self.wfile.write(b"ID")
+                    self.wfile.write('ID должен быть положительным числом'.encode('utf-8'))
                     return
 
                 user_id = int(user_id_str)
                 user = next((u for u in users if u.id == user_id), None)
+
                 if not user:
                     self.send_response(404)
                     self.end_headers()
-                    self.wfile.write("Пользователь не найден".encode('utf-8'))
+                    self.wfile.write('Пользователь не найден'.encode('utf-8'))
                     return
 
                 char_codes = subscriptions.get(user_id, [])
+
                 try:
                     subscribed_currencies = fetch_currencies(char_codes)
-                except Exception as e:
-                    subscribed_currencies = []
+                    historical_data = {}
 
-                html = TEMPLATES["user"].render(
+                    for code in char_codes:
+                        try:
+                            hist = get_historical_rates(code, days=90)
+                            historical_data[code] = hist
+                        except Exception:
+                            historical_data[code] = []
+
+                except Exception:
+                    subscribed_currencies = []
+                    historical_data = {}
+
+                html = TEMPLATES['user'].render(
                     user=user,
-                    subscriptions=subscribed_currencies
+                    subscriptions=subscribed_currencies,
+                    historical_data=historical_data
                 )
                 self._send_html(html)
+
+            elif path.startswith('/static/'):
+                relative_path = path[len('/static/'):]
+                if '..' in relative_path or relative_path.startswith('/'):
+                    self.send_response(403)
+                    self.end_headers()
+                    self.wfile.write(b'Forbidden')
+                    return
+
+                import os
+                static_dir = os.path.join(os.path.dirname(__file__), 'static')
+                file_path = os.path.join(static_dir, relative_path)
+
+                mime_types = {
+                    '.js': 'application/javascript',
+                    '.css': 'text/css',
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.jpeg': 'image/jpeg',
+                    '.svg': 'image/svg+xml',
+                    '.json': 'application/json',
+                    '.html': 'text/html',
+                }
+
+                try:
+                    with open(file_path, 'rb') as f:
+                        content = f.read()
+
+                    _, ext = os.path.splitext(file_path)
+                    content_type = mime_types.get(ext.lower(), 'application/octet-stream')
+
+                    self.send_response(200)
+                    self.send_header('Content-Type', content_type)
+                    self.send_header('Content-Length', str(len(content)))
+                    self.end_headers()
+                    self.wfile.write(content)
+
+                except FileNotFoundError:
+                    self.send_response(404)
+                    self.end_headers()
+                    self.wfile.write(b'File not found')
+                except Exception as e:
+                    self.send_response(500)
+                    self.end_headers()
+                    self.wfile.write(f'Error: {e}'.encode('utf-8'))
+                return
 
             else:
                 self.send_response(404)
                 self.end_headers()
-                self.wfile.write("Страница не найдена".encode('utf-8'))
+                self.wfile.write('Страница не найдена'.encode('utf-8'))
 
         except Exception as e:
             self.send_response(500)
             self.end_headers()
-            self.wfile.write(f"Внутренняя ошибка: {e}".encode("utf-8"))
+            self.wfile.write(f'Внутренняя ошибка: {e}'.encode('utf-8'))
 
     def _send_html(self, content: str):
         self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
         self.end_headers()
-        self.wfile.write(content.encode("utf-8"))
+        self.wfile.write(content.encode('utf-8'))
 
 
 def run_server(port: int = 8000):
-    server = HTTPServer(("", port), MyRequestHandler)
+    server = HTTPServer(('', port), MyRequestHandler)
     try:
+        print(f'Сервер запущен, работает по адресу http://127.0.0.1:{port}')
         server.serve_forever()
     except KeyboardInterrupt:
+        print('Сервер остановлен')
         server.server_close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run_server()

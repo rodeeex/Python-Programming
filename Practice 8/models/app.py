@@ -14,7 +14,7 @@ class App:
     @name.setter
     def name(self, value: str):
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Название приложения должно быть непустой строкой")
+            raise ValueError('Название приложения должно быть непустой строкой')
         self._name = value.strip()
 
     @property
@@ -24,7 +24,7 @@ class App:
     @version.setter
     def version(self, value: str):
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Версия должна быть непустой строкой")
+            raise ValueError('Версия должна быть непустой строкой')
         self._version = value.strip()
 
     @property
@@ -34,5 +34,5 @@ class App:
     @author.setter
     def author(self, value: Author):
         if not isinstance(value, Author):
-            raise TypeError("Автор должен быть экземпляром класса Author")
+            raise TypeError('Автор должен быть экземпляром класса Author')
         self._author = value

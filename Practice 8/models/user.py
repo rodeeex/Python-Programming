@@ -10,7 +10,7 @@ class User:
     @id.setter
     def id(self, value: int):
         if not isinstance(value, int) or value <= 0:
-            raise ValueError("ID пользователя должен быть положительным целым числом")
+            raise ValueError('ID пользователя должен быть положительным целым числом')
         self._id = value
 
     @property
@@ -20,5 +20,5 @@ class User:
     @name.setter
     def name(self, value: str):
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Имя пользователя должно быть непустой строкой")
+            raise ValueError('Имя пользователя должно быть непустой строкой')
         self._name = value.strip()
