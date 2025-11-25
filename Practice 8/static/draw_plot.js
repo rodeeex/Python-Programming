@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
             marker: {size: 4},
             hovertemplate:
                 `<b>%{fullData.name}</b><br>` +
-                `Дата: %{x|%d.%m.%Y}<br>` +
                 `Курс: %{y:.4f} RUB<extra></extra>`
         });
         idx++;
