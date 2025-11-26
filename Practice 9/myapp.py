@@ -24,6 +24,15 @@ app = App(name='CurrenciesApp', version='1.0', author=author)
 
 class MyRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        """
+        Хэндлер GET-запросов, приходящих на сервер. В зависимости от пути рендерится соответствующий шаблон.
+
+        Пути:
+        1) / - главная страница
+        2) /users - список всех пользователей
+        3) /currencies - список всех доступных валют и их курсов
+        4) /static - маршрут для статических файлов (стили, скрипты и т.д.)
+        """
         try:
             parsed = urlparse(self.path)
             path = parsed.path
