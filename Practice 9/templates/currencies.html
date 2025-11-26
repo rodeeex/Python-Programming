@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="/static/styles.css">
+    <meta charset="UTF-8">
+    <title>Валюты</title></head>
+<body>
+<h1>Курсы валют согласно API ЦБ РФ</h1>
+<nav><a href="/">← Назад</a> | <a href="/currencies">Обновить</a></nav>
+<table>
+    <thead>
+    <tr>
+        <th>Код</th>
+        <th>Название</th>
+        <th>Номинал</th>
+        <th>Курс (RUB)</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for curr in currencies %}
+    <tr>
+        <td>{{ curr.char_code }}</td>
+        <td>{{ curr.name }}</td>
+        <td>{{ curr.nominal }}</td>
+        <td>{{ "%.4f"|format(curr.value) }}</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="4">Нет данных</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
