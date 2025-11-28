@@ -1,35 +1,52 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <link rel="stylesheet" href="/static/styles.css">
     <meta charset="UTF-8">
-    <title>Валюты</title></head>
+    <title>Валюты</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
 <body>
-<h1>Курсы валют согласно API ЦБ РФ</h1>
-<nav><a href="/">← Назад</a> | <a href="/currencies">Обновить</a></nav>
+<h1>Валюты</h1>
+<nav><a href="/">← Назад</a></nav>
+
+<div class="instructions">
+    <strong>Для редактирования курса нажмите на ячейку и введите новое значение, после чего кликните Enter</strong>
+</div>
+
 <table>
     <thead>
     <tr>
-        <th>Код</th>
-        <th>Название</th>
+        <th>ID</th>
+        <th>Номер-код</th>
+        <th>Символьный код</th>
+        <th>Название валюты</th>
+        <th>Курс</th>
         <th>Номинал</th>
-        <th>Курс (RUB)</th>
+        <th>Действия</th>
     </tr>
     </thead>
     <tbody>
     {% for curr in currencies %}
     <tr>
+        <td>{{ curr.id }}</td>
+        <td>{{ curr.num_code }}</td>
         <td>{{ curr.char_code }}</td>
         <td>{{ curr.name }}</td>
+        <td class="editable-cell"
+            data-char-code="{{ curr.char_code }}"
+            data-old-value="{{ curr.value }}"
+            contenteditable="false"
+            tabindex="0">
+            {{ "%.4f"|format(curr.value) }}
+        </td>
         <td>{{ curr.nominal }}</td>
-        <td>{{ "%.4f"|format(curr.value) }}</td>
-    </tr>
-    {% else %}
-    <tr>
-        <td colspan="4">Нет данных</td>
+        <td>
+            <a href="/currency/delete?id={{ curr.id }}">Удалить</a>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
 </table>
+<script defer src="/static/edit_currency.js"></script>
 </body>
 </html>

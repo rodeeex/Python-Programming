@@ -1,74 +1,115 @@
-import html
-import json
+import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-from jinja2 import Environment, PackageLoader, select_autoescape
-from models import Author, App, User, Currency
-from utils.currencies_api import get_currency_data, get_historical_rates
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from models.author import Author
+from models.app import App
+from models.user import User
+from utils.database import Database
+from controllers.currency_crud import CurrencyController
+from controllers.currency_db import CurrencyRatesCRUD
+from controllers.pages import PagesController
 
-env = Environment(
-    loader=PackageLoader('myapp'),
-    autoescape=select_autoescape()
-)
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+env = Environment(loader=FileSystemLoader(template_dir), autoescape=select_autoescape())
 
-TEMPLATES = {
-    'index': env.get_template('index.html'),
-    'users': env.get_template('users.html'),
-    'currencies': env.get_template('currencies.html'),
-    'author': env.get_template('author.html'),
-}
+db = Database()
+currency_crud = CurrencyRatesCRUD(db)
+currency_ctrl = CurrencyController(currency_crud)
+pages_ctrl = PagesController(env, currency_ctrl)
 
 author = Author(name='Антон Пушкарев', group='P4150')
-app = App(name='CurrenciesApp', version='1.0', author=author)
+app = App(name='Currencies', version='2.0', author=author)
+
+users = [
+    User(1, 'rodex'),
+    User(2, 'techno'),
+    User(3, 'h1k0'),
+]
+
+currency_ctrl.create_currency('840', 'USD', 'Доллар США', 75.5, 1)
+currency_ctrl.create_currency('978', 'EUR', 'Евро', 82.1, 1)
+currency_ctrl.create_currency('156', 'CNY', 'Юань', 10.97, 10)
+
+subscriptions = {
+    1: [1, 2],
+    2: [3],
+}
 
 
 class MyRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         """
-        Хэндлер GET-запросов, приходящих на сервер. В зависимости от пути рендерится соответствующий шаблон.
+        Обрабатывает все GET-запросы
 
-        Пути:
-        1) / - главная страница
-        2) /users - список всех пользователей
-        3) /currencies - список всех доступных валют и их курсов
-        4) /static - маршрут для статических файлов (стили, скрипты и т.д.)
+        :raises Exception: при внутренней ошибке
         """
+        parsed = urlparse(self.path)
+        path = parsed.path
+        query = parse_qs(parsed.query)
+
         try:
-            parsed = urlparse(self.path)
-            path = parsed.path
-            query = parse_qs(parsed.query)
-
             if path == '/':
-                html = TEMPLATES['index'].render(myapp=app, author=author)
-                self._send_html(html)
-
-            elif path == '/users':
-                html = TEMPLATES["users"].render(users=users)
-                self._send_html(html)
-
-            elif path == '/currencies':
-                default_codes = ['USD', 'EUR', 'CNY', 'BYN', 'TRY', 'KZT']
-                codes_param = query.get('codes', [''])[0].strip()
-                if codes_param:
-                    codes = [c.strip().upper() for c in codes_param.split(',') if c.strip()]
-                else:
-                    codes = default_codes
-
-                try:
-                    currencies = fetch_currencies(codes)
-                except Exception as e:
-                    self.send_response(500)
-                    self.end_headers()
-                    self.wfile.write(f'Ошибка получения курсов: {e}'.encode('utf-8'))
-                    return
-
-                html = TEMPLATES['currencies'].render(currencies=currencies)
+                currencies = currency_ctrl.list_currencies()
+                html = pages_ctrl.render_index(app=app, author=author, currencies=currencies)
                 self._send_html(html)
 
             elif path == '/author':
-                html = TEMPLATES['author'].render(author=author, app=app)
+                html = pages_ctrl.render_author(author=author, app=app)
                 self._send_html(html)
 
+            elif path == '/users':
+                html = pages_ctrl.render_users(users=users)
+                self._send_html(html)
+
+            elif path == '/user':
+                user_id_str = query.get('id', [''])[0]
+                if not user_id_str.isdigit():
+                    self.send_error(400, 'ID должен быть целым числом')
+                    return
+                user_id = int(user_id_str)
+                user = next((u for u in users if u.id == user_id), None)
+                if not user:
+                    self.send_error(404, 'Пользователь не найден')
+                    return
+
+                currency_ids = subscriptions.get(user_id, [])
+                currencies = [c for c in currency_ctrl.list_currencies() if c.id in currency_ids]
+                html = pages_ctrl.render_user(user=user, subscriptions=currencies)
+                self._send_html(html)
+
+            elif path == '/currencies':
+                currencies = currency_ctrl.list_currencies()
+                html = pages_ctrl.render_currencies(currencies=currencies)
+                self._send_html(html)
+
+            elif path == '/currency/delete':
+                currency_id_str = query.get('id', [''])[0]
+                if not currency_id_str.isdigit():
+                    self.send_error(400, 'ID валюты должен быть целым числом')
+                    return
+                currency_ctrl.delete_currency(int(currency_id_str))
+                self._redirect('/currencies')
+
+            elif path == '/currency/update':
+                for char_code, values in query.items():
+                    if char_code and values:
+                        try:
+                            new_value = float(values[0])
+                            currency_ctrl.update_currency(char_code, new_value)
+                        except ValueError:
+                            continue
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b'OK')
+
+            elif path == '/currency/show':
+                currencies = currency_ctrl.list_currencies()
+                for c in currencies:
+                    print(f'[DEBUG] {c.char_code}: {c.value} RUB (id={c.id})')
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write('См. консоль сервера'.encode('utf-8'))
 
             elif path.startswith('/static/'):
                 relative_path = path[len('/static/'):]
@@ -109,7 +150,8 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 except FileNotFoundError:
                     self.send_response(404)
                     self.end_headers()
-                    self.wfile.write(b'File not found')
+                    self.wfile.write('Файл не найден'.encode('utf-8'))
+
                 except Exception as e:
                     self.send_response(500)
                     self.end_headers()
@@ -122,9 +164,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write('Страница не найдена'.encode('utf-8'))
 
         except Exception as e:
-            self.send_response(500)
-            self.end_headers()
-            self.wfile.write(f'Внутренняя ошибка: {e}'.encode('utf-8'))
+            self.send_error(500, f'Внутренняя ошибка: {e}')
 
     def _send_html(self, content: str):
         self.send_response(200)
@@ -132,14 +172,20 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(content.encode('utf-8'))
 
+    def _redirect(self, location: str):
+        self.send_response(302)
+        self.send_header('Location', location)
+        self.end_headers()
+
 
 def run_server(port: int = 8000):
     server = HTTPServer(('', port), MyRequestHandler)
+    print(f'Сервер запущен и работает по адресу: http://localhost:{port}')
     try:
-        print(f'Сервер запущен, работает по адресу http://127.0.0.1:{port}')
         server.serve_forever()
     except KeyboardInterrupt:
         print('Сервер остановлен')
+        db.close()
         server.server_close()
 
 

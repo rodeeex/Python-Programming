@@ -1,0 +1,130 @@
+:root {
+    --bg: #0d0d0d;
+    --fg: #f0f0f0;
+    --accent: #ff9424;
+    --muted: #6b7280;
+    --border: #374151;
+    --card-bg: #111;
+    --link: #38bdf8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'JetBrains Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+    background-color: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1, h2, h3 {
+    font-weight: 600;
+    margin: 1.2em 0 0.6em;
+    color: var(--accent);
+}
+
+h1 {
+    font-size: 1.8rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+}
+
+h2 {
+    font-size: 1.4rem;
+}
+
+nav {
+    margin: 1em 0;
+}
+
+nav a {
+    color: var(--link);
+    text-decoration: none;
+    margin-right: 16px;
+    font-weight: 500;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul li {
+    padding: 4px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.95rem;
+}
+
+th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    background-color: var(--card-bg);
+    font-weight: 600;
+}
+
+tr:hover td {
+    background-color: rgba(56, 189, 248, 0.05);
+}
+
+table tbody tr {
+    border-top: 1px solid var(--border);
+}
+
+table tbody tr:first-child {
+    border-top: none;
+}
+
+footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.editable-cell {
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    outline: none;
+}
+
+.editable-cell:focus {
+    border-color: #38bdf8;
+    background-color: #0a0a0a;
+    cursor: text;
+}
+
+.instructions {
+    background-color: #1e293b;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.instructions code {
+    background: #334155;
+    padding: 2px 6px;
+    border-radius: 3px;
+}

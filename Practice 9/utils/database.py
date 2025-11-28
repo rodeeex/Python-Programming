@@ -2,7 +2,7 @@ import sqlite3
 
 
 class Database:
-    def __init__(self, db_path: str = ":memory:"):
+    def __init__(self, db_path: str = ':memory:'):
         """
         Инициализация соединения с SQLite
 

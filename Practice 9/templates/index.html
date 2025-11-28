@@ -3,17 +3,33 @@
 <head>
     <link rel="stylesheet" href="/static/styles.css">
     <meta charset="UTF-8">
-    <title>{{myapp.name}} v{{myapp.version}}</title>
+    <title>{{ app.name }} v{{ app.version }}</title>
 </head>
 <body>
-<h1>{{ myapp.name }} (v{{ myapp.version }})</h1>
-<p>Автор: {{author.name}}, группа {{author.group}}</p>
-<nav>
-    <a href="/">Главная</a> |
-    <a href="/users">Пользователи</a> |
-    <a href="/currencies">Валюты</a> |
-    <a href="/author">Автор</a>
-</nav>
-<hr>
+<h1>{{ app.name }} (v{{ app.version }})</h1>
+<p><strong>Автор:</strong> {{author.name}}, группа {{author.group}}</p>
+<nav><a href="/author">Автор</a> | <a href="/users">Пользователи</a> | <a href="/currencies">Валюты</a></nav>
+
+<h2>Доступные валюты</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Код</th>
+        <th>Название</th>
+        <th>Курс</th>
+        <th>Номинал</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for curr in currencies %}
+    <tr>
+        <td>{{ curr.char_code }}</td>
+        <td>{{ curr.name }}</td>
+        <td>{{ "%.4f"|format(curr.value) }}</td>
+        <td>{{ curr.nominal }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 </body>
 </html>

@@ -33,7 +33,7 @@ class CurrencyRatesCRUD:
 
         :return: список объектов Currency
         """
-        sql = "SELECT * FROM currency"
+        sql = 'SELECT * FROM currency'
         cur = self.db.get_connection().cursor()
         rows = cur.execute(sql).fetchall()
         return [
@@ -55,7 +55,7 @@ class CurrencyRatesCRUD:
         :param char_code: код валюты
         :param value: новый курс
         """
-        sql = "UPDATE currency SET value = ? WHERE char_code = ?"
+        sql = 'UPDATE currency SET value = ? WHERE char_code = ?'
         cur = self.db.get_connection().cursor()
         cur.execute(sql, (value, char_code))
         self.db.get_connection().commit()
@@ -66,7 +66,7 @@ class CurrencyRatesCRUD:
 
         :param currency_id: идентификатор валюты
         """
-        sql = "DELETE FROM currency WHERE id = ?"
+        sql = 'DELETE FROM currency WHERE id = ?'
         cur = self.db.get_connection().cursor()
         cur.execute(sql, (currency_id,))
         self.db.get_connection().commit()
