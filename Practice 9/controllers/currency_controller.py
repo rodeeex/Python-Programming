@@ -1,11 +1,11 @@
 from typing import List
 
-from controllers.currency_db import CurrencyRatesCRUD
+from controllers.currency_db import CurrencyDB
 from models.currency import Currency
 
 
 class CurrencyController:
-    def __init__(self, crud: CurrencyRatesCRUD):
+    def __init__(self, crud: CurrencyDB):
         self.crud = crud
 
     def list_currencies(self) -> List[Currency]:

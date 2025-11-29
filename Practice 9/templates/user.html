@@ -4,7 +4,6 @@
     <link rel="stylesheet" href="/static/styles.css">
     <meta charset="UTF-8">
     <title>Пользователь: {{ user.name }}</title>
-    <script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
 </head>
 <body>
 <h1>Пользователь: {{user.name}}</h1>
@@ -17,13 +16,6 @@
     <li>{{ curr.name }} - {{ "%.4f"|format(curr.value / curr.nominal) }} RUB за 1 {{ curr.char_code }}</li>
     {% endfor %}
 </ul>
-
-<h2>График курсов валют пользователя</h2>
-
-<div id="chart-data" data-historical='{{ historical_data | tojson | safe }}' style="display:none;"></div>
-<div id="currencyPlot" style="width: 95%; max-width: 1000px; margin-left: 10px;"></div>
-
-<script type="text/javascript" src="/static/draw_plot.js"></script>
 
 {% else %}
 <p>Пользователь не подписан на курсы валют</p>

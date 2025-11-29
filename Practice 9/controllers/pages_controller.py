@@ -4,7 +4,7 @@ from models.app import App
 from models.user import User
 from models.currency import Currency
 from typing import List
-from controllers.currency_crud import CurrencyController
+from controllers.currency_controller import CurrencyController
 
 
 class PagesController:

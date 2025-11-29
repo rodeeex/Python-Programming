@@ -3,7 +3,7 @@ from typing import List
 from utils.database import Database
 
 
-class CurrencyRatesCRUD:
+class CurrencyDB:
     def __init__(self, db: Database):
         self.db = db
 

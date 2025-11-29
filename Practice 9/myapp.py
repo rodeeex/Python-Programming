@@ -2,39 +2,45 @@ import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+from controllers.user_currency_controller import UserCurrencyController
+from controllers.user_db import UserDB
+from controllers.user_currency_db import UserCurrencyDB
+from controllers.user_controller import UserController
 from models.author import Author
 from models.app import App
-from models.user import User
 from utils.database import Database
-from controllers.currency_crud import CurrencyController
-from controllers.currency_db import CurrencyRatesCRUD
-from controllers.pages import PagesController
+from controllers.currency_controller import CurrencyController
+from controllers.currency_db import CurrencyDB
+from controllers.pages_controller import PagesController
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 env = Environment(loader=FileSystemLoader(template_dir), autoescape=select_autoescape())
 
 db = Database()
-currency_crud = CurrencyRatesCRUD(db)
-currency_ctrl = CurrencyController(currency_crud)
-pages_ctrl = PagesController(env, currency_ctrl)
+currency_db = CurrencyDB(db)
+user_db = UserDB(db)
+user_currency_db = UserCurrencyDB(db)
 
 author = Author(name='Антон Пушкарев', group='P4150')
 app = App(name='Currencies', version='2.0', author=author)
 
-users = [
-    User(1, 'rodex'),
-    User(2, 'techno'),
-    User(3, 'h1k0'),
-]
+currency_ctrl = CurrencyController(currency_db)
+user_ctrl = UserController(user_db)
+user_currency_ctrl = UserCurrencyController(user_db, user_currency_db, currency_db)
+pages_ctrl = PagesController(env, currency_ctrl)
 
-currency_ctrl.create_currency('840', 'USD', 'Доллар США', 75.5, 1)
-currency_ctrl.create_currency('978', 'EUR', 'Евро', 82.1, 1)
-currency_ctrl.create_currency('156', 'CNY', 'Юань', 10.97, 10)
+user1_id = user_ctrl.create_user('rodex')
+user2_id = user_ctrl.create_user('techno')
+user3_id = user_ctrl.create_user('h1k0')
 
-subscriptions = {
-    1: [1, 2],
-    2: [3],
-}
+usd_id = currency_ctrl.create_currency('840', 'USD', 'Доллар США', 75.5, 1)
+eur_id = currency_ctrl.create_currency('978', 'EUR', 'Евро', 82.1, 1)
+cny_id = currency_ctrl.create_currency('156', 'CNY', 'Юань', 10.97, 10)
+
+user_currency_ctrl.subscribe_to_currency(user1_id, usd_id)
+user_currency_ctrl.subscribe_to_currency(user1_id, eur_id)
+user_currency_ctrl.subscribe_to_currency(user2_id, cny_id)
 
 
 class MyRequestHandler(BaseHTTPRequestHandler):
@@ -59,6 +65,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 self._send_html(html)
 
             elif path == '/users':
+                users = user_ctrl.list_users()
                 html = pages_ctrl.render_users(users=users)
                 self._send_html(html)
 
@@ -68,14 +75,12 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                     self.send_error(400, 'ID должен быть целым числом')
                     return
                 user_id = int(user_id_str)
-                user = next((u for u in users if u.id == user_id), None)
+                user = user_ctrl.get_user(user_id)
                 if not user:
                     self.send_error(404, 'Пользователь не найден')
                     return
-
-                currency_ids = subscriptions.get(user_id, [])
-                currencies = [c for c in currency_ctrl.list_currencies() if c.id in currency_ids]
-                html = pages_ctrl.render_user(user=user, subscriptions=currencies)
+                subscriptions = user_currency_ctrl.get_user_subscriptions(user_id)
+                html = pages_ctrl.render_user(user=user, subscriptions=subscriptions)
                 self._send_html(html)
 
             elif path == '/currencies':
@@ -100,6 +105,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                         except ValueError:
                             continue
                 self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
                 self.end_headers()
                 self.wfile.write(b'OK')
 
@@ -108,6 +114,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 for c in currencies:
                     print(f'[DEBUG] {c.char_code}: {c.value} RUB (id={c.id})')
                 self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
                 self.end_headers()
                 self.wfile.write('См. консоль сервера'.encode('utf-8'))
 
@@ -149,17 +156,20 @@ class MyRequestHandler(BaseHTTPRequestHandler):
 
                 except FileNotFoundError:
                     self.send_response(404)
+                    self.send_header('Content-Type', 'text/html; charset=utf-8')
                     self.end_headers()
                     self.wfile.write('Файл не найден'.encode('utf-8'))
 
                 except Exception as e:
                     self.send_response(500)
+                    self.send_header('Content-Type', 'text/html; charset=utf-8')
                     self.end_headers()
                     self.wfile.write(f'Error: {e}'.encode('utf-8'))
                 return
 
             else:
                 self.send_response(404)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
                 self.end_headers()
                 self.wfile.write('Страница не найдена'.encode('utf-8'))
 
