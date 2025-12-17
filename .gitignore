@@ -169,3 +169,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+/Practice10/functions/c_integrate_nogil.html
+/Practice10/functions/c_integrate_nogil.c
+/Practice10/functions/c_integrate.html
+/Practice10/functions/c_integrate.c
